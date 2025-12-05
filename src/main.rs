@@ -41,9 +41,11 @@ impl Display for Error {
             f,
             "{}",
             match &self {
-                Error::Parsing => String::from("Parsing"),
-                Error::NoInputFile => String::from("NoInputFile"),
+                Error::Parsing => String::from("Error::Parsing"),
+                Error::NoInputFile => String::from("Error::NoInputFile"),
             }
         )
     }
 }
+
+pub type Result<T> = std::result::Result<T, crate::Error>;
