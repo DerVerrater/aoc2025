@@ -1,6 +1,7 @@
 use std::{env, fmt::Display};
 
 mod day1;
+mod day2;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -18,6 +19,13 @@ fn main() {
                     Err(err) => err.to_string(),
                 };
                 println!("Day 1, Part 2: Result {}", p2);
+            }
+            "day2" | "2" | "d2" => {
+                let p1 = match day2::part1() {
+                    Ok(num) => num.to_string(),
+                    Err(err) => err.to_string(),
+                };
+                println!("Day 2, Part 1: Result {}", p1);
             }
             _ => {
                 eprintln!("Day is not done yet, or is an unrecognized value.");
