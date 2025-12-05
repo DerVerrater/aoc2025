@@ -26,6 +26,12 @@ fn main() {
                     Err(err) => err.to_string(),
                 };
                 println!("Day 2, Part 1: Result {}", p1);
+
+                let p2 = match day2::part2() {
+                    Ok(num) => num.to_string(),
+                    Err(err) => err.to_string(),
+                };
+                println!("Day 2, Part 2: Result {}", p2);
             }
             _ => {
                 eprintln!("Day is not done yet, or is an unrecognized value.");
