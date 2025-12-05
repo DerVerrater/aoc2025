@@ -24,7 +24,7 @@ fn part1_impl(input: &str) -> Result<i64> {
             ))
         })
         .collect::<Result<_>>()?;
-    
+
     let reg = Regex::new(r"^(\d+)\1$").unwrap();
     let mut sum: i64 = 0;
     for (start, stop) in ranges {

@@ -85,7 +85,7 @@ impl Dial {
             }
         };
         // println!(" ->> Next [{}], ({})", next, pos);
-        
+
         // Count one towards times_at_zero if
         // 1. next pos *is* 0
         // 2. going up but next < current (happens after overflow & wrap)
@@ -93,17 +93,17 @@ impl Dial {
         if next == 0 {
             self.times_at_zero += 1;
             // println!(" ->> Landed on zero, +1");
-        // Guard against starting from zero. If we're already there, wrapping
-        // doesn't count because we didn't touch it *again*. We were already
-        // touching it, so counting the wrap would be double counting the touch.
+            // Guard against starting from zero. If we're already there, wrapping
+            // doesn't count because we didn't touch it *again*. We were already
+            // touching it, so counting the wrap would be double counting the touch.
         } else if self.current != 0 && (amount.is_negative() && ((self.current as u8) < next)) {
-                self.times_at_zero += 1;
-                // println!(" ->> Rolled under, +1");
+            self.times_at_zero += 1;
+            // println!(" ->> Rolled under, +1");
         } else if amount.is_positive() && ((self.current as u8) > next) {
-                self.times_at_zero += 1;
-                // println!(" ->> Rolled over, +1");
+            self.times_at_zero += 1;
+            // println!(" ->> Rolled over, +1");
         } else {
-                // println!(" --> No zero-cross. Continue");
+            // println!(" --> No zero-cross. Continue");
         }
 
         // Count how many whole wraps might have happened (e.g.: `amount=250`)
