@@ -38,7 +38,7 @@ fn part2_impl(input: &str) -> Result<usize> {
 
     let total_fresh_ids = set
         .iter()
-        .fold(0, |acc, range| acc + range.end()+1 - range.start());
+        .fold(0, |acc, range| acc + range.end() + 1 - range.start());
     Ok(total_fresh_ids)
 }
 
@@ -66,10 +66,7 @@ where
             .map(|line| line.parse::<Idx>().map_err(|_| Error::Parsing))
             .collect::<Result<_>>()?;
 
-        Ok(Self {
-            ranges: ranges,
-            ids: ids,
-        })
+        Ok(Self { ranges, ids })
     }
 
     /// Searches each range for a positive hit, otherwise `false`.
