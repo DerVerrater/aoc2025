@@ -3,6 +3,7 @@ use std::{env, fmt::Display};
 mod day1;
 mod day2;
 mod day3;
+mod day4;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -47,6 +48,13 @@ fn main() {
                 };
                 println!("Day 3, Part 2: Result {}", p2);
             }
+            "day4" | "4" | "d4" => {
+                let p1 = match day4::part1() {
+                    Ok(num) => num.to_string(),
+                    Err(err) => err.to_string(),
+                };
+                println!("Day 4, Part 1: Result {}", p1);
+            }
             _ => {
                 eprintln!("Day is not done yet, or is an unrecognized value.");
                 std::process::exit(1);
@@ -61,6 +69,7 @@ fn main() {
 pub enum Error {
     Parsing,
     NoInputFile,
+    InvalidInput,
 }
 
 impl Display for Error {
@@ -71,6 +80,7 @@ impl Display for Error {
             match &self {
                 Error::Parsing => String::from("Error::Parsing"),
                 Error::NoInputFile => String::from("Error::NoInputFile"),
+                Error::InvalidInput => String::from("Error::InvalidInput"),
             }
         )
     }
