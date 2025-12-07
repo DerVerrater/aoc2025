@@ -1,14 +1,21 @@
+use rangemap::RangeInclusiveSet;
+
 use crate::{Error, Result};
-use std::{fs, ops::{RangeInclusive}, str::FromStr};
+use std::{fs, ops::RangeInclusive, str::FromStr};
 
 pub fn part1() -> Result<usize> {
     let document = fs::read_to_string("./day5.txt").map_err(|_| Error::NoInputFile)?;
     part1_impl(document.as_str())
 }
 
+pub fn part2() -> Result<usize> {
+    let document = fs::read_to_string("./day5.txt").map_err(|_| Error::NoInputFile)?;
+    part2_impl(document.as_str())
+}
+
 fn part1_impl(input: &str) -> Result<usize> {
     let db = Database::<usize>::try_from(input)?;
-    
+
     let mut contained = 0;
     for id in db.ids.iter() {
         if db.contains(id) {
@@ -16,6 +23,23 @@ fn part1_impl(input: &str) -> Result<usize> {
         }
     }
     Ok(contained)
+}
+
+fn part2_impl(input: &str) -> Result<usize> {
+    let text_ranges = input.split("\n\n").next().ok_or(Error::Parsing)?;
+    let mut set = RangeInclusiveSet::new();
+
+    let ranges = text_ranges
+        .split("\n")
+        .map(Database::<usize>::parse_range_text)
+        .collect::<Result<Vec<_>>>()?;
+
+    ranges.into_iter().for_each(|range| set.insert(range));
+
+    let total_fresh_ids = set
+        .iter()
+        .fold(0, |acc, range| acc + range.end()+1 - range.start());
+    Ok(total_fresh_ids)
 }
 
 struct Database<Idx> {
@@ -34,18 +58,7 @@ where
 
         let ranges: Vec<_> = text_ranges
             .split("\n")
-            .map(|line| -> Result<RangeInclusive<Idx>> {
-                let mut s = line.split("-");
-                let start = s
-                    .next()
-                    .and_then(|s| s.parse::<Idx>().ok())
-                    .ok_or(Error::Parsing)?;
-                let end = s
-                    .next()
-                    .and_then(|s| s.parse::<Idx>().ok())
-                    .ok_or(Error::Parsing)?;
-                Ok(start..=end)
-            })
+            .map(Self::parse_range_text)
             .collect::<Result<_>>()?;
 
         let ids: Vec<_> = ids
@@ -70,6 +83,19 @@ where
         }
         false
     }
+
+    fn parse_range_text(line: &str) -> Result<RangeInclusive<Idx>> {
+        let mut s = line.split("-");
+        let start = s
+            .next()
+            .and_then(|s| s.parse::<Idx>().ok())
+            .ok_or(Error::Parsing)?;
+        let end = s
+            .next()
+            .and_then(|s| s.parse::<Idx>().ok())
+            .ok_or(Error::Parsing)?;
+        Ok(start..=end)
+    }
 }
 
 #[cfg(test)]
@@ -79,6 +105,11 @@ mod test {
     #[test]
     fn p1() {
         assert_eq!(3, part1_impl(DATABASE).unwrap());
+    }
+
+    #[test]
+    fn p2() {
+        assert_eq!(14, part2_impl(DATABASE).unwrap());
     }
 
     const DATABASE: &str = "3-5
