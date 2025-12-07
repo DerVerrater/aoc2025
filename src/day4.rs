@@ -9,6 +9,11 @@ pub fn part1() -> Result<i32> {
     part1_impl(document.as_str())
 }
 
+pub fn part2() -> Result<usize> {
+    let document = fs::read_to_string("./day4.txt").map_err(|_| Error::NoInputFile)?;
+    part2_impl(document.as_str())
+}
+
 fn part1_impl(input: &str) -> Result<i32> {
     let grid = Grid::try_new(input)?;
     let mut accessible_rolls = 0;
@@ -24,6 +29,53 @@ fn part1_impl(input: &str) -> Result<i32> {
         }
     }
     Ok(accessible_rolls)
+}
+
+fn part2_impl(input: &str) -> Result<usize> {
+    let mut grid = Grid::try_new(input)?;
+    let mut removed_rolls = 0;
+    let mut accessible_rolls = find_accessible(&grid);
+    while accessible_rolls.len() > 0 {
+        // count the (soon-to-be) removed rolls.
+        removed_rolls += accessible_rolls.len();
+        // remove the rolls (replace w/ Tile::Empty)
+        accessible_rolls.into_iter().for_each(|(x, y)| {
+            let maybe_tile = grid.tile_at_mut(x, y);
+            if let Some(tile) = maybe_tile {
+                *tile = Tile::Empty;
+            } else {
+                unreachable!("Tried emptying a removable paper roll, but Grid gave back a None. How can we remove something that doesn't exist?");
+            }
+        });
+        // scan again
+        accessible_rolls = find_accessible(&grid);
+    }
+    Ok(removed_rolls)
+}
+
+fn find_accessible(grid: &Grid) -> Vec<(usize, usize)> {
+    let rect = (0..grid.height).cartesian_product(0..grid.width);
+    let accessible_tiles: Vec<_> = rect
+        .into_iter()
+        // Get tile, emit (maybe_tile, coord) pairs
+        .map(|(y, x)| (grid.tile_at(x, y), (x, y)))
+        // convert maybe_tile to definitely_tile (turn None into Tile::Empty)
+        .map(|(maybe_tile, coord)| {
+            let tile = match maybe_tile {
+                Some(tile) => tile,
+                None => Tile::Empty,
+            };
+            (tile, coord)
+        })
+        // Remove non-Paper tiles
+        .filter(|(tile, _coord)| tile == &Tile::Paper)
+        // Split out only the coord
+        .map(|(_tile, coord)| coord)
+        // Check for accessibility, removing inaccessible candidates
+        .filter(|coord| count_neighbors(grid, *coord) < 4)
+        .collect();
+
+    accessible_tiles
 }
 
 fn count_neighbors(grid: &Grid, target: (usize, usize)) -> usize {
@@ -87,6 +139,14 @@ impl Grid {
             None // Over one or both upper bounds.
         }
     }
+
+    fn tile_at_mut(&mut self, x: usize, y: usize) -> Option<&mut Tile> {
+        if x < self.width && y < self.height {
+            Some(&mut self.tiles[y * self.width + x])
+        } else {
+            None // Over one or both upper bounds.
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -102,6 +162,11 @@ mod test {
     #[test]
     fn p1() {
         assert_eq!(13, part1_impl(PAPER).unwrap());
+    }
+
+    #[test]
+    fn p2() {
+        assert_eq!(43, part2_impl(PAPER).unwrap());
     }
 
     const PAPER: &str = "..@@.@@@@.
