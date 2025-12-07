@@ -22,30 +22,20 @@ fn part1_impl(input: &str) -> Result<i32> {
             let h_range = if y > 0 { (y - 1)..(y + 2) } else { y..(y + 2) };
             let kernel = h_range.cartesian_product(w_range);
             // println!("Kernel: {kernel:?}");
-            let mut paper_neighbors = 0;
-            let mut empty_neighbors = 0;
-            for (v, u) in kernel {
-                // skip the center spot (u,v is on x,y)
-                if u == x && v == y {
-                    // println!(" ->> On kernel center, skipping this iteration.");
-                    continue;
-                }
-                if let Some(tile) = grid.tile_at(u, v) {
-                    // println!(" ->> Checking tile ({u}, {v}): {tile:?}");
-                    match tile {
-                        Tile::Empty => {
-                            empty_neighbors += 1;
-                        }
-                        Tile::Paper => {
-                            paper_neighbors += 1;
-                        }
+
+            let paper_neighbors = kernel
+                .into_iter()
+                // Skip kernel center
+                .filter(|&(v, u)| (u, v) != (x, y))
+                // Get Tile variant at (u,v)
+                .map(|(v, u)| -> Tile {
+                    match grid.tile_at(u, v) {
+                        Some(tile) => tile,
+                        None => Tile::Empty, // Consider out-of-bounds tiles to be empty
                     }
-                } else {
-                    // eprintln!(
-                    //     "Tile at ({u}, {v}) was None. Manually verify this is an out-of-bounds access"
-                    // );
-                }
-            }
+                })
+                .filter(|&tile| tile == Tile::Paper)
+                .count();
 
             if paper_neighbors < 4 {
                 // this paper roll can be accessed
@@ -94,7 +84,7 @@ impl Grid {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 enum Tile {
     Empty,
     Paper,
