@@ -39,7 +39,7 @@ fn main() {
                     Ok(num) => num.to_string(),
                     Err(err) => err.to_string(),
                 };
-                println!("Day3, Part 1: Result {}", p1);
+                println!("Day 3, Part 1: Result {}", p1);
 
                 let p2 = match day3::part2() {
                     Ok(num) => num.to_string(),

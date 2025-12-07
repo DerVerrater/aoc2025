@@ -1,4 +1,3 @@
-
 use std::fs;
 
 use crate::{Error, Result};
@@ -18,9 +17,9 @@ pub fn part2() -> Result<i64> {
 fn part1_impl(input: &str) -> Result<i32> {
     let mut sum = 0;
     for line in input.split("\n") {
-        let (slot1, idx) = find_digit(&line[..line.len()-1])?;
+        let (slot1, idx) = find_digit(&line[..line.len() - 1])?;
         // println!("{slot1} --- {idx}");
-        let (slot2, idx) = find_digit(&line[(idx+1)..])?;
+        let (slot2, idx) = find_digit(&line[(idx + 1)..])?;
         // println!("{slot2} --- {idx}");
         let number: String = [slot1, slot2].iter().collect();
         let number = number.parse::<i32>().map_err(|_| Error::Parsing)?;
@@ -38,10 +37,14 @@ fn part2_impl(input: &str) -> Result<i64> {
         for num_collected in 0..12 {
             let tail_buffer = 11 - num_collected;
             let (char, idx) = find_digit(&line[start_idx..(line.len() - tail_buffer)])?;
-            start_idx += idx+1;
+            start_idx += idx + 1;
             digits.push(char);
         }
-        let number = digits.iter().collect::<String>().parse::<i64>().map_err(|_| Error::Parsing)?;
+        let number = digits
+            .iter()
+            .collect::<String>()
+            .parse::<i64>()
+            .map_err(|_| Error::Parsing)?;
         // println!("->> Got number {number}");
         sum += number;
     }
@@ -80,5 +83,4 @@ mod test {
 811111111111119
 234234234234278
 818181911112111";
-
 }
