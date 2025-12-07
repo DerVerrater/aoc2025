@@ -35,7 +35,7 @@ fn part2_impl(input: &str) -> Result<usize> {
     let mut grid = Grid::try_new(input)?;
     let mut removed_rolls = 0;
     let mut accessible_rolls = find_accessible(&grid);
-    while accessible_rolls.len() > 0 {
+    while !accessible_rolls.is_empty() {
         // count the (soon-to-be) removed rolls.
         removed_rolls += accessible_rolls.len();
         // remove the rolls (replace w/ Tile::Empty)
@@ -87,7 +87,7 @@ fn count_neighbors(grid: &Grid, target: (usize, usize)) -> usize {
     let kernel = h_range.cartesian_product(w_range);
     // println!("Kernel: {kernel:?}");
 
-    let paper_neighbors = kernel
+    kernel
         .into_iter()
         // Skip kernel center
         .filter(|&(v, u)| (u, v) != (x, y))
@@ -99,8 +99,7 @@ fn count_neighbors(grid: &Grid, target: (usize, usize)) -> usize {
             }
         })
         .filter(|&tile| tile == Tile::Paper)
-        .count();
-    paper_neighbors
+        .count()
 }
 
 struct Grid {
@@ -122,13 +121,13 @@ impl Grid {
             })
             .collect();
         if tiles.len() != (width * height) {
-            return Err(Error::Parsing);
+            Err(Error::Parsing)
         } else {
-            return Ok(Self {
+            Ok(Self {
                 width,
                 height,
                 tiles,
-            });
+            })
         }
     }
 

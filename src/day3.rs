@@ -19,7 +19,7 @@ fn part1_impl(input: &str) -> Result<i32> {
     for line in input.split("\n") {
         let (slot1, idx) = find_digit(&line[..line.len() - 1])?;
         // println!("{slot1} --- {idx}");
-        let (slot2, idx) = find_digit(&line[(idx + 1)..])?;
+        let (slot2, _idx) = find_digit(&line[(idx + 1)..])?;
         // println!("{slot2} --- {idx}");
         let number: String = [slot1, slot2].iter().collect();
         let number = number.parse::<i32>().map_err(|_| Error::Parsing)?;

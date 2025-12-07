@@ -36,7 +36,7 @@ fn solver_impl(input: &str, regex: Regex) -> Result<i64> {
                     .ok_or(Error::Parsing)?,
                 i.next()
                     .and_then(|text| text.parse::<i64>().ok())
-                    .and_then(|num| Some(num + 1))
+                    .map(|num| num + 1)
                     .ok_or(Error::Parsing)?,
             ))
         })
@@ -44,7 +44,7 @@ fn solver_impl(input: &str, regex: Regex) -> Result<i64> {
     let mut sum: i64 = 0;
     for (start, stop) in ranges {
         // scan range looking for repeated patterns
-        for idx in start as i64..stop as i64 {
+        for idx in start..stop {
             let stringified = idx.to_string();
             if regex.is_match(stringified.as_bytes()).unwrap() {
                 sum += idx;
