@@ -4,6 +4,7 @@ mod day1;
 mod day2;
 mod day3;
 mod day4;
+mod day5;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -60,6 +61,13 @@ fn main() {
                     Err(err) => err.to_string(),
                 };
                 println!("Day 4, Part 2: Result {}", p2);
+            }
+            "day5" | "5" | "d5" => {
+                let p1 = match day5::part1() {
+                    Ok(num) => num.to_string(),
+                    Err(err) => err.to_string(),
+                };
+                println!("Day 5, Part 1: Result {}", p1);
             }
             _ => {
                 eprintln!("Day is not done yet, or is an unrecognized value.");
