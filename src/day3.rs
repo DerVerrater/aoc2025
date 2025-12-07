@@ -9,6 +9,12 @@ pub fn part1() -> Result<i32> {
     Ok(result)
 }
 
+pub fn part2() -> Result<i64> {
+    let document = fs::read_to_string("./day3.txt").map_err(|_| Error::NoInputFile)?;
+    let result = part2_impl(document.as_str())?;
+    Ok(result)
+}
+
 fn part1_impl(input: &str) -> Result<i32> {
     let mut sum = 0;
     for line in input.split("\n") {
@@ -19,6 +25,24 @@ fn part1_impl(input: &str) -> Result<i32> {
         let number: String = [slot1, slot2].iter().collect();
         let number = number.parse::<i32>().map_err(|_| Error::Parsing)?;
         // println!("{number}");
+        sum += number;
+    }
+    Ok(sum)
+}
+
+fn part2_impl(input: &str) -> Result<i64> {
+    let mut sum = 0;
+    for line in input.split("\n") {
+        let mut start_idx = 0usize;
+        let mut digits = Vec::<char>::new();
+        for num_collected in 0..12 {
+            let tail_buffer = 11 - num_collected;
+            let (char, idx) = find_digit(&line[start_idx..(line.len() - tail_buffer)])?;
+            start_idx += idx+1;
+            digits.push(char);
+        }
+        let number = digits.iter().collect::<String>().parse::<i64>().map_err(|_| Error::Parsing)?;
+        // println!("->> Got number {number}");
         sum += number;
     }
     Ok(sum)
@@ -45,6 +69,11 @@ mod test {
     #[test]
     fn p1() {
         assert_eq!(357, part1_impl(BATTERIES).unwrap())
+    }
+
+    #[test]
+    fn p2() {
+        assert_eq!(3_121_910_778_619, part2_impl(BATTERIES).unwrap())
     }
 
     const BATTERIES: &str = "987654321111111
