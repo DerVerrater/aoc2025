@@ -16,27 +16,7 @@ fn part1_impl(input: &str) -> Result<i32> {
         // Only do the neighbor scan if we're on a paper roll.
         if let Some(Tile::Paper) = grid.tile_at(x, y) {
             // println!(" >>> Accessibility for: ({x}, {y})");
-            // select kernel ranges based on whether or not we're up against the
-            // zero line. -1 to 1 normally, 0 to 1 on lower border.
-            let w_range = if x > 0 { (x - 1)..(x + 2) } else { x..(x + 2) };
-            let h_range = if y > 0 { (y - 1)..(y + 2) } else { y..(y + 2) };
-            let kernel = h_range.cartesian_product(w_range);
-            // println!("Kernel: {kernel:?}");
-
-            let paper_neighbors = kernel
-                .into_iter()
-                // Skip kernel center
-                .filter(|&(v, u)| (u, v) != (x, y))
-                // Get Tile variant at (u,v)
-                .map(|(v, u)| -> Tile {
-                    match grid.tile_at(u, v) {
-                        Some(tile) => tile,
-                        None => Tile::Empty, // Consider out-of-bounds tiles to be empty
-                    }
-                })
-                .filter(|&tile| tile == Tile::Paper)
-                .count();
-
+            let paper_neighbors = count_neighbors(&grid, (x, y));
             if paper_neighbors < 4 {
                 // this paper roll can be accessed
                 accessible_rolls += 1;
@@ -44,6 +24,31 @@ fn part1_impl(input: &str) -> Result<i32> {
         }
     }
     Ok(accessible_rolls)
+}
+
+fn count_neighbors(grid: &Grid, target: (usize, usize)) -> usize {
+    let (x, y) = target;
+    // select kernel ranges based on whether or not we're up against the
+    // zero line. -1 to 1 normally, 0 to 1 on lower border.
+    let w_range = if x > 0 { (x - 1)..(x + 2) } else { x..(x + 2) };
+    let h_range = if y > 0 { (y - 1)..(y + 2) } else { y..(y + 2) };
+    let kernel = h_range.cartesian_product(w_range);
+    // println!("Kernel: {kernel:?}");
+
+    let paper_neighbors = kernel
+        .into_iter()
+        // Skip kernel center
+        .filter(|&(v, u)| (u, v) != (x, y))
+        // Get Tile variant at (u,v)
+        .map(|(v, u)| -> Tile {
+            match grid.tile_at(u, v) {
+                Some(tile) => tile,
+                None => Tile::Empty, // Consider out-of-bounds tiles to be empty
+            }
+        })
+        .filter(|&tile| tile == Tile::Paper)
+        .count();
+    paper_neighbors
 }
 
 struct Grid {
