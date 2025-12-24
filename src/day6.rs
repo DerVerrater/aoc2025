@@ -21,7 +21,7 @@ fn part1_impl(input: &str) -> Result<usize> {
         .take(1)
         .map(|line| line.split(" "))
         .count();
-    
+
     // pre-allocate the list of problems
     let mut problems: Vec<Vec<usize>> = Vec::new();
     problems.reserve(width);
@@ -36,7 +36,9 @@ fn part1_impl(input: &str) -> Result<usize> {
     let subtotals = worksheet.into_iter().map(|problem| {
         let operator = problem.iter().rev().next().unwrap();
         let answer = match operator {
-            ItemType::Number(_num) => panic!("Last element is not an operator. Algo error, panicking!"),
+            ItemType::Number(_num) => {
+                panic!("Last element is not an operator. Algo error, panicking!")
+            }
             ItemType::OpAdd => {
                 let answer: usize = problem
                     .iter()
@@ -45,21 +47,28 @@ fn part1_impl(input: &str) -> Result<usize> {
                         if let ItemType::Number(num) = itemtype {
                             num
                         } else {
-                            panic!("One of first four items was not a number. Algo error, panicking!");
+                            panic!(
+                                "One of first four items was not a number. Algo error, panicking!"
+                            );
                         }
                     })
                     .sum();
                 answer
-            },
-            ItemType::OpMul => problem.iter()
+            }
+            ItemType::OpMul => problem
+                .iter()
                 .take(INPUT_ROW_COUNT)
                 .map(|itemtype| {
                     if let ItemType::Number(num) = itemtype {
                         *num
                     } else {
-                        panic!("One of the first four items was not a number. Algo error, panicking!");
+                        panic!(
+                            "One of the first four items was not a number. Algo error, panicking!"
+                        );
                     }
-                }).reduce(|acc, val| acc * val).unwrap(),
+                })
+                .reduce(|acc, val| acc * val)
+                .unwrap(),
         };
         answer
     });
@@ -69,18 +78,14 @@ fn part1_impl(input: &str) -> Result<usize> {
 /// Parses a line, returning it as a list of [`ItemType`]s. If conversion
 /// from [`core::str::parse`] fails, a [`crate::Error::Parsing`] error result
 /// is returned, instead.
-fn parse_line(input: &str) -> Result<Vec<ItemType>>{
+fn parse_line(input: &str) -> Result<Vec<ItemType>> {
     let parts = input
         .split_whitespace()
         .map(|col| col.trim())
-        .map(|item| {
-            match item {
-                "+" => Ok(ItemType::OpAdd),
-                "*" => Ok(ItemType::OpMul),
-                text => {
-                    Ok(ItemType::Number(text.parse::<usize>()?))
-                }
-            }
+        .map(|item| match item {
+            "+" => Ok(ItemType::OpAdd),
+            "*" => Ok(ItemType::OpMul),
+            text => Ok(ItemType::Number(text.parse::<usize>()?)),
         });
     parts.collect()
 }
@@ -119,9 +124,17 @@ mod test {
 
     #[test]
     fn check_parseline() {
-        let expected = vec![ItemType::Number(123), ItemType::Number(328), ItemType::Number(51), ItemType::Number(64)];
+        let expected = vec![
+            ItemType::Number(123),
+            ItemType::Number(328),
+            ItemType::Number(51),
+            ItemType::Number(64),
+        ];
 
-        let input = HOMEWORK.lines().next().expect("Couldn't find one line in the input");
+        let input = HOMEWORK
+            .lines()
+            .next()
+            .expect("Couldn't find one line in the input");
         let res = parse_line(input).expect("Parsing error occurred on a line");
         assert_eq!(res, expected);
     }
@@ -129,19 +142,39 @@ mod test {
     #[test]
     fn check_spread() {
         let expected = vec![
-            vec![ItemType::Number(123), ItemType::Number(45), ItemType::Number(6), ItemType::OpMul],
-            vec![ItemType::Number(328), ItemType::Number(64), ItemType::Number(98), ItemType::OpAdd],
-            vec![ItemType::Number(51), ItemType::Number(387), ItemType::Number(215), ItemType::OpMul],
-            vec![ItemType::Number(64), ItemType::Number(23), ItemType::Number(314), ItemType::OpAdd],
+            vec![
+                ItemType::Number(123),
+                ItemType::Number(45),
+                ItemType::Number(6),
+                ItemType::OpMul,
+            ],
+            vec![
+                ItemType::Number(328),
+                ItemType::Number(64),
+                ItemType::Number(98),
+                ItemType::OpAdd,
+            ],
+            vec![
+                ItemType::Number(51),
+                ItemType::Number(387),
+                ItemType::Number(215),
+                ItemType::OpMul,
+            ],
+            vec![
+                ItemType::Number(64),
+                ItemType::Number(23),
+                ItemType::Number(314),
+                ItemType::OpAdd,
+            ],
         ];
-        
+
         let lines = HOMEWORK
             .split("\n")
             .map(parse_line)
             .filter(|item| item.is_ok())
             .map(|what| what.unwrap());
         let worksheet = lines.fold(Vec::<Vec<ItemType>>::new(), spread_items);
-        
+
         assert_eq!(worksheet, expected);
     }
 
