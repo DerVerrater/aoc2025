@@ -1,5 +1,13 @@
 use crate::{Error, Result};
 
+// The sample data and real input have a different number of number rows and
+// the parser isn't smart enough to deal with that. This selects between the
+// two counts for `cargo test` and `cargo run`
+#[cfg(test)]
+const INPUT_ROW_COUNT: usize = 3;
+#[cfg(not(test))]
+const INPUT_ROW_COUNT: usize = 4;
+
 pub fn part1() -> Result<i32> {
     todo!();
 }
@@ -29,7 +37,7 @@ fn part1_impl(input: &str) -> Result<usize> {
             ItemType::OpAdd => {
                 let answer: usize = problem
                     .iter()
-                    .take(4)
+                    .take(INPUT_ROW_COUNT)
                     .map(|itemtype| {
                         if let ItemType::Number(num) = itemtype {
                             num
@@ -41,14 +49,14 @@ fn part1_impl(input: &str) -> Result<usize> {
                 answer
             },
             ItemType::OpMul => problem.iter()
-                .take(4)
+                .take(INPUT_ROW_COUNT)
                 .map(|itemtype| {
                     if let ItemType::Number(num) = itemtype {
-                        num
+                        *num
                     } else {
                         panic!("One of the first four items was not a number. Algo error, panicking!");
                     }
-                }).fold(0usize, |acc, val| acc * val),
+                }).reduce(|acc, val| acc * val).unwrap(),
         };
         answer
     });
