@@ -60,7 +60,7 @@ fn part1_impl(input: &str) -> Result<usize> {
 /// is returned, instead.
 fn parse_line(input: &str) -> Result<Vec<ItemType>>{
     let parts = input
-        .split(" ")
+        .split_whitespace()
         .map(|col| col.trim())
         .map(|item| {
             match item {
