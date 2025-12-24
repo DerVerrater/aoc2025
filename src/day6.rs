@@ -1,3 +1,5 @@
+use std::fs;
+
 use crate::{Error, Result};
 
 // The sample data and real input have a different number of number rows and
@@ -8,8 +10,9 @@ const INPUT_ROW_COUNT: usize = 3;
 #[cfg(not(test))]
 const INPUT_ROW_COUNT: usize = 4;
 
-pub fn part1() -> Result<i32> {
-    todo!();
+pub fn part1() -> Result<usize> {
+    let document = fs::read_to_string("./day6.txt").map_err(|_| Error::NoInputFile)?;
+    part1_impl(document.as_str())
 }
 
 fn part1_impl(input: &str) -> Result<usize> {
