@@ -1,10 +1,11 @@
-use std::{env, fmt::Display};
+use std::{env, fmt::Display, num::ParseIntError};
 
 mod day1;
 mod day2;
 mod day3;
 mod day4;
 mod day5;
+mod day6;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -75,6 +76,13 @@ fn main() {
                 };
                 println!("Day 5, Part 2: Result {}", p2);
             }
+            "day6" | "6" | "d6" => {
+                let p1 = match day6::part1() {
+                    Ok(num) => num.to_string(),
+                    Err(err) => err.to_string(),
+                };
+                println!("Day 6, Part 1: Result {}", p1);
+            }
             _ => {
                 eprintln!("Day is not done yet, or is an unrecognized value.");
                 std::process::exit(1);
@@ -103,6 +111,12 @@ impl Display for Error {
                 Error::InvalidInput => String::from("Error::InvalidInput"),
             }
         )
+    }
+}
+
+impl From<ParseIntError> for Error {
+    fn from(_value: ParseIntError) -> Self {
+        Self::Parsing
     }
 }
 

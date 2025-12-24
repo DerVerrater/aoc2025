@@ -1,0 +1,111 @@
+use crate::{Error, Result};
+
+pub fn part1() -> Result<i32> {
+    todo!();
+}
+
+fn part1_impl(input: &str) -> Result<usize> {
+    let width = input
+        .split("\n")
+        .take(1)
+        .map(|line| line.split(" "))
+        .count();
+    
+    // pre-allocate the list of problems
+    let mut problems: Vec<Vec<usize>> = Vec::new();
+    problems.reserve(width);
+
+    let lines = input
+        .split("\n")
+        .map(parse_line)
+        .filter(|item| item.is_ok())
+        .map(|what| what.unwrap());
+
+    let worksheet = lines.fold(Vec::<Vec<ItemType>>::new(), spread_items);
+    let subtotals = worksheet.into_iter().map(|problem| {
+        let operator = problem.iter().rev().next().unwrap();
+        let answer = match operator {
+            ItemType::Number(_num) => panic!("Last element is not an operator. Algo error, panicking!"),
+            ItemType::OpAdd => {
+                let answer: usize = problem
+                    .iter()
+                    .take(4)
+                    .map(|itemtype| {
+                        if let ItemType::Number(num) = itemtype {
+                            num
+                        } else {
+                            panic!("One of first four items was not a number. Algo error, panicking!");
+                        }
+                    })
+                    .sum();
+                answer
+            },
+            ItemType::OpMul => problem.iter()
+                .take(4)
+                .map(|itemtype| {
+                    if let ItemType::Number(num) = itemtype {
+                        num
+                    } else {
+                        panic!("One of the first four items was not a number. Algo error, panicking!");
+                    }
+                }).fold(0usize, |acc, val| acc * val),
+        };
+        answer
+    });
+    Ok(subtotals.sum())
+}
+
+/// Parses a line, returning it as a list of [`ItemType`]s. If conversion
+/// from [`core::str::parse`] fails, a [`crate::Error::Parsing`] error result
+/// is returned, instead.
+fn parse_line(input: &str) -> Result<Vec<ItemType>>{
+    let parts = input
+        .split(" ")
+        .map(|col| col.trim())
+        .map(|item| {
+            match item {
+                "+" => Ok(ItemType::OpAdd),
+                "*" => Ok(ItemType::OpMul),
+                text => {
+                    Ok(ItemType::Number(text.parse::<usize>()?))
+                }
+            }
+        });
+    parts.collect()
+}
+
+/// Utility for spreading each column of a line into the sub-lists in the main
+/// worksheet list.
+fn spread_items(mut collection: Vec<Vec<ItemType>>, incoming: Vec<ItemType>) -> Vec<Vec<ItemType>> {
+    for (idx, item) in incoming.into_iter().enumerate() {
+        let slot = match collection.get_mut(idx) {
+            Some(text) => Some(text),
+            None => {
+                collection.push(Vec::new());
+                collection.get_mut(idx)
+            },
+        }.expect("Failed to retrived AND default-insert a vector for the collection. Something weird must have happened (like an OOM condition). Panicking!");
+        slot.push(item);
+    }
+    collection
+}
+
+enum ItemType {
+    Number(usize),
+    OpAdd,
+    OpMul,
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn p1() {
+        assert_eq!(4277556, part1_impl(HOMEWORK).unwrap());
+    }
+    const HOMEWORK: &str = "123 328  51 64 
+ 45 64  387 23 
+  6 98  215 314
+*   +   *   +  ";
+}
