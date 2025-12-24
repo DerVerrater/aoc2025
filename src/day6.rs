@@ -16,26 +16,14 @@ pub fn part1() -> Result<usize> {
 }
 
 fn part1_impl(input: &str) -> Result<usize> {
-    let width = input
-        .split("\n")
-        .take(1)
-        .map(|line| line.split(" "))
-        .count();
-
-    // pre-allocate the list of problems
-    let mut problems: Vec<Vec<usize>> = Vec::new();
-    problems.reserve(width);
-
     let lines = input
         .split("\n")
-        .map(parse_line)
-        .filter(|item| item.is_ok())
-        .map(|what| what.unwrap());
+        .flat_map(parse_line);
 
     let worksheet = lines.fold(Vec::<Vec<ItemType>>::new(), spread_items);
     let subtotals = worksheet.into_iter().map(|problem| {
-        let operator = problem.iter().rev().next().unwrap();
-        let answer = match operator {
+        let operator = problem.iter().next_back().unwrap();
+        match operator {
             ItemType::Number(_num) => {
                 panic!("Last element is not an operator. Algo error, panicking!")
             }
@@ -69,8 +57,7 @@ fn part1_impl(input: &str) -> Result<usize> {
                 })
                 .reduce(|acc, val| acc * val)
                 .unwrap(),
-        };
-        answer
+        }
     });
     Ok(subtotals.sum())
 }
