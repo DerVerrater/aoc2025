@@ -90,6 +90,7 @@ fn spread_items(mut collection: Vec<Vec<ItemType>>, incoming: Vec<ItemType>) -> 
     collection
 }
 
+#[derive(Debug, PartialEq)]
 enum ItemType {
     Number(usize),
     OpAdd,
@@ -104,6 +105,35 @@ mod test {
     fn p1() {
         assert_eq!(4277556, part1_impl(HOMEWORK).unwrap());
     }
+
+    #[test]
+    fn check_parseline() {
+        let expected = vec![ItemType::Number(123), ItemType::Number(328), ItemType::Number(51), ItemType::Number(64)];
+
+        let input = HOMEWORK.lines().next().expect("Couldn't find one line in the input");
+        let res = parse_line(input).expect("Parsing error occurred on a line");
+        assert_eq!(res, expected);
+    }
+
+    #[test]
+    fn check_spread() {
+        let expected = vec![
+            vec![ItemType::Number(123), ItemType::Number(45), ItemType::Number(6), ItemType::OpMul],
+            vec![ItemType::Number(328), ItemType::Number(64), ItemType::Number(98), ItemType::OpAdd],
+            vec![ItemType::Number(51), ItemType::Number(387), ItemType::Number(215), ItemType::OpMul],
+            vec![ItemType::Number(64), ItemType::Number(23), ItemType::Number(314), ItemType::OpAdd],
+        ];
+        
+        let lines = HOMEWORK
+            .split("\n")
+            .map(parse_line)
+            .filter(|item| item.is_ok())
+            .map(|what| what.unwrap());
+        let worksheet = lines.fold(Vec::<Vec<ItemType>>::new(), spread_items);
+        
+        assert_eq!(worksheet, expected);
+    }
+
     const HOMEWORK: &str = "123 328  51 64 
  45 64  387 23 
   6 98  215 314
